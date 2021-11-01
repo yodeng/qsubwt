@@ -101,6 +101,7 @@ class QSubWrapper(object):
             cmd = cmd.strip() + " " + self.scriptToRun
             log.info("calling cmd : %s" % cmd)
             output = subprocess.check_output(cmd, shell=True)
+            print(output.strip())
 
             match = re.search(self.jobIdDecoder.encode(), output)
 
@@ -118,7 +119,7 @@ class QSubWrapper(object):
             cmd = "qdel %s" % jobId
             retCode = subprocess.call(cmd, shell=True)
 
-            if retCode != self.successCode:
+            if retCode != 0:
                 msg = "Unable to qdel running job %s. You may have to kill it manually" % jobId
                 raise QSubError(msg)
 
