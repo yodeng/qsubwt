@@ -17,10 +17,9 @@ QSUB_JOB_ID_DECODER = "(\d+) \("
 
 DEBUG = False
 
-log = logging.getLogger(__name__)
-
 
 def _setupLog(file_name=None):
+    log = logging.getLogger()
     if file_name is None:
         handler = logging.StreamHandler(sys.stdout)
     else:
@@ -30,7 +29,8 @@ def _setupLog(file_name=None):
     formatter = logging.Formatter(str_formatter)
     handler.setFormatter(formatter)
     log.addHandler(handler)
-    log.setLevel(logging.DEBUG)
+    log.setLevel(logging.INFO)
+    return log
 
 
 class QSubError(Exception):
@@ -51,10 +51,7 @@ class QSubWrapper(object):
         """Handle command line argument parsing"""
         args = sys.argv[1:]
 
-        log.debug("Parsing args %s" % args)
-
-        if len(args) == 0 or "-h" in args or "--help" in args:
-            sys.exit(__doc__ + "version: %s" % __version__)
+        self.log.debug("Parsing args %s" % args)
 
         self.scriptToRun = args.pop()
 
@@ -72,14 +69,14 @@ class QSubWrapper(object):
         """
         Loop until we no longer see the job in qstat
         """
-        log.info("waiting for jobId %s to complete" % jobId)
+        self.log.info("waiting for jobId %s to complete" % jobId)
 
         consecutiveFailures = 0
 
         while True:
             cmd = "%s -j %s" % (self.qstatCmd, jobId)
 
-            log.debug("calling cmd %s" % cmd)
+            self.log.debug("calling cmd %s" % cmd)
             with open(os.devnull, "w") as null:
                 retCode = subprocess.call(cmd, shell=True,
                                           stderr=null,
@@ -87,7 +84,7 @@ class QSubWrapper(object):
             if retCode > 0:
                 break
             time.sleep(QSTAT_INTERVAL)
-        log.info(
+        self.log.info(
             "Completed waiting for termination of jobId %s" % jobId)
 
     def run(self):
@@ -99,9 +96,8 @@ class QSubWrapper(object):
         try:
             cmd = "qsub %s" % self.qsubArgs
             cmd = cmd.strip() + " " + self.scriptToRun
-            log.info("calling cmd : %s" % cmd)
+            self.log.info("calling cmd : %s" % cmd)
             output = subprocess.check_output(cmd, shell=True)
-            print(output.strip())
 
             match = re.search(self.jobIdDecoder.encode(), output)
 
@@ -123,12 +119,18 @@ class QSubWrapper(object):
                 msg = "Unable to qdel running job %s. You may have to kill it manually" % jobId
                 raise QSubError(msg)
 
+    @property
+    def log(self):
+        return logging.getLogger()
+
 
 def main():
+    if len(sys.argv) == 1 or "-h" in sys.argv or "--help" in sys.argv:
+        sys.exit(__doc__ + "version: %s" % __version__)
+    log = _setupLog()
     if DEBUG:
-        _setupLog()
-        log.info("Running %s version %s" %
-                 (os.path.dirname(__file__), __version__))
+        log.setLevel(logging.DEBUG)
+    log.info("Running qsubwt version %s" % __version__)
     app = QSubWrapper()
     sys.exit(app.run())
 

@@ -9,7 +9,7 @@ git clone https://github.com/yodeng/qsubwt.git
 pip install ./qsubwt
 
 or:
-pip install qsubwt
+pip install qsubwt==1.0.1
 ```
 
 
@@ -20,5 +20,5 @@ pip install qsubwt
 $ qsubwt -h
 
 Usage: qsubwt [qsub options] <script.sh>
-version: 1.0.0
+version: 1.0.1
 ```
