@@ -4,12 +4,16 @@
 
 ##### Install
 
-```
-git clone https://github.com/yodeng/qsubwt.git
-pip install ./qsubwt
+> git repo (for recommend)
 
-or:
-pip install qsubwt==1.0.1
+```
+pip install git+https://github.com/yodeng/qsubwt.git
+```
+
+> Pypi
+
+```
+pip install qsubwt -U
 ```
 
 
@@ -20,5 +24,5 @@ pip install qsubwt==1.0.1
 $ qsubwt -h
 
 Usage: qsubwt [qsub options] <script.sh>
-version: 1.0.1
+version: xxx
 ```
