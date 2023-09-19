@@ -1,15 +1,19 @@
 #!/usr/bin/env python
-"""
-Simple wrapper for qsub which provides the functionality of the -sync option
-Usage: qsubwt [qsub options] <script.sh>
+"""Simple wrapper for sge qsub which provides the functionality of the "-sync" option.
+
+Usage:
+    qsubwt [qsub options] script.sh
+
 """
 
-import sys
 import os
 import re
-import subprocess
+import sys
 import time
 import logging
+import subprocess
+
+from importlib.metadata import distribution
 
 from .version import __version__
 
@@ -38,6 +42,7 @@ class QSubError(Exception):
 
 
 class QSubWrapper(object):
+
     def __init__(self):
         self.scriptToRun = None
         self.jobIdDecoder = None
@@ -111,11 +116,15 @@ class QSubWrapper(object):
 
 def main():
     if len(sys.argv) == 1 or "-h" in sys.argv or "--help" in sys.argv:
-        sys.exit(__doc__.strip() + "\nversion: %s" % __version__)
+        dis = distribution(__package__)
+        info = __doc__
+        for meta in ["Version", "Author", "Author-email", "Home-page"]:
+            info += "{}: {}\n".format(meta, dis.metadata.get(meta, "unknown"))
+        sys.exit(info)
     log = _setupLog()
     if DEBUG:
         log.setLevel(logging.DEBUG)
-    log.info("Running qsubwt version %s" % __version__)
+    log.info("Running %s, version: %s" % (__package__, __version__))
     app = QSubWrapper()
     sys.exit(app.run())
 

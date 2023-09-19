@@ -22,6 +22,7 @@ setup(
     author_email="yodeng@tju.edu.cn",
     url="https://github.com/yodeng/qsubwt.git",
     license="BSD",
+    python_requires='>=3.5',
     long_description=getdes(),
     long_description_content_type='text/markdown',
     entry_points={
